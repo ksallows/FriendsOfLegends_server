@@ -75,6 +75,18 @@ const User = db.define('user', {
     admin: {
         type: DataTypes.BOOLEAN,
         allowNull: false
+    },
+    active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false
+    },
+    commentsMade: {
+        type: DataTypes.ARRAY,
+        allowNull: true
+    },
+    comments: {
+        type: DataTypes.ARRAY,
+        allowNull: true
     }
 });
 
