@@ -58,7 +58,8 @@ const User = db.define('user', {
     },
     rating: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 0
     },
     ratings: {
         type: DataTypes.ARRAY,
@@ -74,11 +75,13 @@ const User = db.define('user', {
     },
     admin: {
         type: DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: false
     },
     active: {
         type: DataTypes.BOOLEAN,
-        allowNull: false
+        allowNull: false,
+        defaultValue: true
     },
     commentsMade: {
         type: DataTypes.ARRAY,
