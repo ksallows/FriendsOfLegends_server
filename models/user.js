@@ -15,7 +15,6 @@ const User = db.define('user', {
     alias: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: false
     },
     passwordhash: {
         type: DataTypes.STRING,
@@ -27,6 +26,10 @@ const User = db.define('user', {
     },
     summonerId: {
         type: DataTypes.STRING,
+        allowNull: true
+    },
+    level: {
+        type: DataTypes.INTEGER,
         allowNull: true
     },
     rank: {
