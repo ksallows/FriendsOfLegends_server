@@ -51,7 +51,7 @@ const User = db.define('user', {
         allowNull: true
     },
     topChamps: {
-        type: DataTypes.ARRAY,
+        type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true
     },
     profileIcon: {
@@ -69,7 +69,7 @@ const User = db.define('user', {
         allowNull: true
     },
     roles: {
-        type: DataTypes.ARRAY,
+        type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true
     },
     voiceComm: {
@@ -81,7 +81,7 @@ const User = db.define('user', {
         allowNull: true
     },
     gameModes: {
-        type: DataTypes.ARRAY,
+        type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true
     },
 
@@ -92,18 +92,18 @@ const User = db.define('user', {
         defaultValue: 0
     },
     ratings: {
-        type: DataTypes.ARRAY,
+        type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true
     },
 
 
     // * COMMENTS
     commentsMade: {
-        type: DataTypes.ARRAY,
+        type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true
     },
     comments: {
-        type: DataTypes.ARRAY,
+        type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true
     }
 });
