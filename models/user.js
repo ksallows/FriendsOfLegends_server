@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const db = require('../db');
 
 const User = db.define('user', {
+
     // *    BASIC ACCT INFO
     id: {
         type: DataTypes.UUID,
@@ -31,6 +32,7 @@ const User = db.define('user', {
         allowNull: false,
         defaultValue: true
     },
+
     // * RIOT API GENERATED INFO
     summonerName: {
         type: DataTypes.STRING,
