@@ -2,6 +2,7 @@ const { DataTypes } = require('sequelize');
 const db = require('../db');
 
 const User = db.define('user', {
+    // *    BASIC ACCT INFO
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -20,6 +21,17 @@ const User = db.define('user', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    admin: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    active: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true
+    },
+    // * RIOT API GENERATED INFO
     summonerName: {
         type: DataTypes.STRING,
         allowNull: true
@@ -36,14 +48,6 @@ const User = db.define('user', {
         type: DataTypes.STRING,
         allowNull: true
     },
-    server: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    discord: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
     topChamps: {
         type: DataTypes.ARRAY,
         allowNull: true
@@ -52,10 +56,34 @@ const User = db.define('user', {
         type: DataTypes.INTEGER,
         allowNull: true
     },
+
+    // * USER SUPPLIED INFO
+    server: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    discord: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    roles: {
+        type: DataTypes.ARRAY,
+        allowNull: true
+    },
     voiceComm: {
         type: DataTypes.BOOLEAN,
         allowNull: true
     },
+    description: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    gameModes: {
+        type: DataTypes.ARRAY,
+        allowNull: true
+    },
+
+    // * RATING
     rating: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -65,24 +93,9 @@ const User = db.define('user', {
         type: DataTypes.ARRAY,
         allowNull: true
     },
-    description: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
-    roles: {
-        type: DataTypes.ARRAY,
-        allowNull: true
-    },
-    admin: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    },
-    active: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true
-    },
+
+
+    // * COMMENTS
     commentsMade: {
         type: DataTypes.ARRAY,
         allowNull: true
