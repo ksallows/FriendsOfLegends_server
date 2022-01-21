@@ -4,7 +4,7 @@ const { UniqueConstraintError } = require("sequelize/lib/errors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const validateJWT = require("../middleware/validatejwt");
-//const { DataTypes } = require("sequelize/dist");
+const util = require('util')
 
 router.put("/update", validateJWT, async (request, response) => {
 
@@ -37,16 +37,6 @@ router.put("/update", validateJWT, async (request, response) => {
 
     const accountId = request.accountId;
 
-    // ? fetch: summonerId (id), profileIcon (profileIconId), level (summonerLevel)
-    // {
-    //     "id": "ClazlW-TfDBWcACca48cQKRyy8og7StMNrdmgxr9MgQckUk",
-    //     "accountId": "je7dcfTne4K-M-JIDEKGIjXGgDyQYh4-VhOJOekpYP_ae-Q",
-    //     "puuid": "Tu13h0NFEJKnFy8_ekMW0mAl0XHL8dLP43r3FZo6lBnFQX93l3LecrstfLuXKkwfBvZTM2hBrcsD1w",
-    //     "name": "Scuttle",
-    //     "profileIconId": 4413,
-    //     "revisionDate": 1642785399716,
-    //     "summonerLevel": 213
-    // }
     await fetch(`https://${server}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}`, {
         method: 'GET',
         mode: 'cors',
@@ -65,25 +55,29 @@ router.put("/update", validateJWT, async (request, response) => {
             newData.summonerIcon = result.profileIconId;
             newData.level = result.summonerLevel
         })
-        .then(async () => {
-            await fetch(`https://${server}.api.riotgames.com/lol/league/v4/entries/by-summoner/${newData.summonerId}`, {
-                method: 'GET',
-                mode: 'cors',
-                headers: {
-                    'X-Riot-Token': process.env.RIOT_API_KEY
-                }
-            })
-                .then(result => result.json())
-                .then(result => {
-                    newData.rank = `${result[0].tier} ${result[0].rank}`
-                })
-        })
 
-    const query = {
-        where: {
-            accountId: accountId,
+    await fetch(`https://${server}.api.riotgames.com/lol/league/v4/entries/by-summoner/${newData.summonerId}`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+            'X-Riot-Token': process.env.RIOT_API_KEY
         }
-    };
+    })
+        .then(result => result.json())
+        .then(result => {
+            console.log(util.inspect(result, { showHidden: false, depth: null, colors: true }))
+            if (result.length === 0)
+                newData.rank = 'Unranked';
+            else {
+                let a;
+                for (i = 0; i < result.length; i++) {
+                    if (result[i].queueType === 'RANKED_SOLO_5x5') {
+                        a = i;
+                    }
+                }
+                newData.rank = `${result[a].tier} ${result[a].rank}`
+            }
+        })
 
     try {
         await Profile.update(
