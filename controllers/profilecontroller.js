@@ -13,21 +13,24 @@ router.put("/update", validateJWT, async (request, response) => {
         server
     } = request.body.profile;
 
-    summonerName = encodeURI(summonerName)
-
     const newData = {
         summonerId: null,
         level: null,
         summonerIcon: null,
         discord: null,
-        roles: [],
+        roles: null,
         active: null,
-        gameModes: [],
+        gameModes: null,
         voiceComm: null,
         description: null,
         active: true,
-        rank: null
+        rank: null,
+        topChamps: [],
+        summonerName: summonerName,
+        server: server
     }
+
+    summonerName = encodeURI(summonerName)
 
     if (summonerName === null)
         return response.status(500).json({ message: 'Summoner Name is Required' })
@@ -80,6 +83,18 @@ router.put("/update", validateJWT, async (request, response) => {
                     newData.rank = result[a].tier
             }
         })
+
+    await fetch(`https://${server}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/${newData.summonerId}`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+            'X-Riot-Token': process.env.RIOT_API_KEY
+        }
+    })
+        .then(result => result.json())
+        .then(result => newData.topChamps.push(result[0].championId, result[1].championId, result[2].championId))
+
+    console.log(newData.topChamps)
 
     try {
         await Profile.update(
