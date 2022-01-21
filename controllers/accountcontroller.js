@@ -59,49 +59,49 @@ router.post("/register", async (request, response) => {
     }
 });
 
-// router.post("/login", async (request, response) => {
-//     let { email, password } = request.body.user;
+router.post("/login", async (request, response) => {
+    let { email, password } = request.body.account;
 
-//     try {
-//         const loginUser = await User.findOne({
-//             where: {
-//                 email: email,
-//             },
-//         });
+    try {
+        const loginAccount = await Account.findOne({
+            where: {
+                email: email,
+            },
+        });
 
-//         if (loginUser) {
-//             let passwordComparison = await bcrypt.compare(
-//                 password,
-//                 loginUser.passwordhash
-//             );
-//             if (passwordComparison) {
-//                 let token = jwt.sign(
-//                     { id: loginUser.user_id },
-//                     process.env.JWT_SECRET,
-//                     { expiresIn: 60 * 60 * 24 }
-//                 );
+        if (loginAccount) {
+            let passwordComparison = await bcrypt.compare(
+                password,
+                loginAccount.passwordhash
+            );
+            if (passwordComparison) {
+                let token = jwt.sign(
+                    { id: loginAccount.accountId },
+                    process.env.JWT_SECRET,
+                    { expiresIn: 60 * 60 * 24 }
+                );
 
-//                 response.status(200).json({
-//                     user: loginUser,
-//                     message: "User successfully logged in!",
-//                     sessionToken: token,
-//                 });
-//             } else {
-//                 response.status(401).json({
-//                     message: "Incorrect email or password",
-//                 });
-//             }
-//         } else {
-//             response.status(401).json({
-//                 message: "Incorrect email or password",
-//             });
-//         }
-//     } catch (error) {
-//         response.status(500).json({
-//             message: `Failed to log user in. ${error}`,
-//         });
-//     }
-// });
+                response.status(200).json({
+                    account: loginAccount.email,
+                    message: "Account successfully logged in!",
+                    sessionToken: token,
+                });
+            } else {
+                response.status(401).json({
+                    message: "Incorrect email or password",
+                });
+            }
+        } else {
+            response.status(401).json({
+                message: "Incorrect email or password",
+            });
+        }
+    } catch (error) {
+        response.status(500).json({
+            message: `Failed to log user in. ${error}`,
+        });
+    }
+});
 
 // router.put("/edit", validateJWT, async (request, response) => {
 //     let { description, imageURL } = request.body.user;
