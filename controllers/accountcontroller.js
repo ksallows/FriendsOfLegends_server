@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { Account } = require("../models");
+const { Account, Profile } = require("../models");
 const { UniqueConstraintError } = require("sequelize/lib/errors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -29,6 +29,17 @@ router.post("/register", async (request, response) => {
         let token = jwt.sign({ id: account.id }, process.env.JWT_SECRET, {
             expiresIn: 60 * 60 * 24,
         });
+
+        const accountInfo = await Account.findAll({
+            where: {
+                email: email,
+            },
+            attributes: ['accountId']
+        })
+
+        await Profile.create({
+            accountId: accountInfo[0].accountId
+        })
 
         response.status(201).json({
             message: "Account successfully created",
