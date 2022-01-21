@@ -10,14 +10,15 @@ router.put("/update", validateJWT, async (request, response) => {
 
     let {
         summonerName,
-        server
+        server,
+        discord
     } = request.body.profile;
 
     const newData = {
         summonerId: null,
         level: null,
         summonerIcon: null,
-        discord: null,
+        discord: discord,
         roles: null,
         active: null,
         gameModes: null,
@@ -37,6 +38,9 @@ router.put("/update", validateJWT, async (request, response) => {
 
     if (server === null)
         return response.status(500).json({ message: 'Server is Required' })
+
+    if (!discord.match(/^.{3,32}#[0-9]{4}$/))
+        return response.status(400).json({ message: "Discord tag not valid" });
 
     const accountId = request.accountId;
 
@@ -110,87 +114,5 @@ router.put("/update", validateJWT, async (request, response) => {
         });
     }
 });
-
-// router.get("/likes", validateJWT, async (request, response) => {
-//     const id = request.user_id;
-
-//     try {
-//         const userLikes = await User.findAll({
-//             where: {
-//                 user_id: id,
-//             },
-//             attributes: ["likedPosts"],
-//         });
-//         response.status(200).json(userLikes);
-//     } catch (error) {
-//         response.status(500).json({
-//             error: `Error ${error}`,
-//         });
-//     }
-// });
-
-// router.post("/checkToken", validateJWT, async (request, response) => {
-//     response.status(200).json({
-//         message: "Valid Token.",
-//         user_id: request.user_id,
-//         username: request.username,
-//     });
-// });
-
-// router.get("/:username", async (request, response) => {
-//     const username = request.params.username;
-
-//     try {
-//         const userInfo = await User.findAll({
-//             where: {
-//                 username: username,
-//             },
-//             attributes: ["profileDescription", "profilePicture"],
-//         });
-//         response.status(200).json(userInfo);
-//     } catch (error) {
-//         response.status(500).json({
-//             error: `Error ${error}`,
-//         });
-//     }
-// });
-
-// router.get('/:username', async (request, response) => {
-//     const username = request.params.username;
-
-//     try {
-//         const userInfo = await User.findAll({
-//             where: {
-//                 username: username,
-//             },
-//             attributes: ['profileDescription', 'profilePicture']
-//         })
-//         response.status(200).json(userInfo)
-//     }
-//     catch (error) {
-//         response.status(500).json({
-//             error: `Error ${error}`
-//         });
-//     }
-// });
-
-// router.get('/usernameFromId/:id', async (request, response) => {
-//     const user_id = request.params.id;
-
-//     try {
-//         let username = await User.findAll({
-//             where: {
-//                 user_id: user_id
-//             },
-//             attributes: ['username']
-//         })
-//         response.status(200).json(username)
-//     }
-//     catch (error) {
-//         response.status(500).json({
-//             error: `Error ${error}`
-//         });
-//     }
-// })
 
 module.exports = router;
