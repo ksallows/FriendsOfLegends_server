@@ -7,8 +7,9 @@ const dbConnection = require('./db');
 const controllers = require('./controllers');
 app.use(express.json());
 
-app.use('/user', controllers.usercontroller);
-app.use('/comment', controllers.commentcontroller);
+app.use('/account', controllers.accountcontroller);
+app.use('/profile', controllers.profilecontroller);
+app.use('/message', controllers.messagecontroller);
 
 dbConnection.authenticate()
     .then(() => dbConnection.sync())

@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { Comment, User } = require("../models/index");
+const { Message, User } = require("../models/index");
 const validateJWT = require("../middleware/validatejwt");
 //const { route } = require("./usercontroller");
 const sequelize = require("sequelize");

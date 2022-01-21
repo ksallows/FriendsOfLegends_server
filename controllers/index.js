@@ -1,4 +1,5 @@
 module.exports = {
-    usercontroller: require('./usercontroller'),
-    commentcontroller: require('./commentcontroller')
+    accountcontroller: require('./accountcontroller'),
+    profilecontroller: require('./profilecontroller'),
+    messagecontroller: require('./messagecontroller')
 }

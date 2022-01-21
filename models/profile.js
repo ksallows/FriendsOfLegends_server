@@ -1,38 +1,16 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize')
 const db = require('../db');
 
-const User = db.define('user', {
-
-    // *    BASIC ACCT INFO
-    id: {
+const Profile = db.define('profile', {
+    profileId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
-    },
-    alias: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
-    passwordhash: {
+    accountId: {
         type: DataTypes.STRING,
         allowNull: false
     },
-    admin: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    },
-    active: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: true
-    },
-
     // * RIOT API GENERATED INFO
     summonerName: {
         type: DataTypes.STRING,
@@ -84,28 +62,11 @@ const User = db.define('user', {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true
     },
-
-    // * RATING
-    rating: {
-        type: DataTypes.INTEGER,
+    active: {
+        type: DataTypes.BOOLEAN,
         allowNull: false,
-        defaultValue: 0
-    },
-    ratings: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: true
-    },
-
-
-    // * COMMENTS
-    commentsMade: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: true
-    },
-    comments: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: true
+        defaultValue: true
     }
 });
 
-module.exports = User;
+module.exports = Profile;
