@@ -28,7 +28,7 @@ const Profile = db.define('profile', {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true
     },
-    profileIcon: {
+    summonerIcon: {
         type: DataTypes.INTEGER,
         allowNull: true
     },
