@@ -10,7 +10,8 @@ const Account = db.define('account', {
     },
     profileId: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        defaultValue: 'NOTSET'
     },
     email: {
         type: DataTypes.STRING,

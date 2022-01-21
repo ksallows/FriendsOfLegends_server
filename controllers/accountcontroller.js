@@ -20,13 +20,13 @@ router.post("/register", async (request, response) => {
             .json({ message: "Password must be at least 8 characters" });
 
     try {
-        const user = await User.create({
+        const account = await Account.create({
             email,
             alias,
             passwordhash: bcrypt.hashSync(password, 13)
         });
 
-        let token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        let token = jwt.sign({ id: account.id }, process.env.JWT_SECRET, {
             expiresIn: 60 * 60 * 24,
         });
 
@@ -39,11 +39,11 @@ router.post("/register", async (request, response) => {
     } catch (error) {
         if (error.name == "SequelizeUniqueConstraintError") {
             response.status(409).json({
-                message: "Email or username already in use",
+                message: "Email already in use",
             });
         } else
             response.status(500).json({
-                message: `Failed to register user.`,
+                message: `Failed to register account.${error}`,
             });
     }
 });

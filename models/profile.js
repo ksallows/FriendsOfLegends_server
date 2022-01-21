@@ -12,10 +12,6 @@ const Profile = db.define('profile', {
         allowNull: false
     },
     // * RIOT API GENERATED INFO
-    summonerName: {
-        type: DataTypes.STRING,
-        allowNull: true
-    },
     summonerId: {
         type: DataTypes.STRING,
         allowNull: true
@@ -38,6 +34,10 @@ const Profile = db.define('profile', {
     },
 
     // * USER SUPPLIED INFO
+    summonerName: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     server: {
         type: DataTypes.STRING,
         allowNull: true
