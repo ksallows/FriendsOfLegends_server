@@ -65,7 +65,6 @@ router.put("/update", validateJWT, async (request, response) => {
     })
         .then(result => result.json())
         .then(result => {
-            console.log(util.inspect(result, { showHidden: false, depth: null, colors: true }))
             if (result.length === 0)
                 newData.rank = 'Unranked';
             else {
@@ -75,7 +74,10 @@ router.put("/update", validateJWT, async (request, response) => {
                         a = i;
                     }
                 }
-                newData.rank = `${result[a].tier} ${result[a].rank}`
+                if (result[a].tier !== 'CHALLENGER' && result[a].tier !== 'MASTER' && result[a].tier !== 'GRANDMASTER')
+                    newData.rank = `${result[a].tier === ''} ${result[a].rank}`
+                else
+                    newData.rank = result[a].tier
             }
         })
 
