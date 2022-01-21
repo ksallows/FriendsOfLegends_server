@@ -4,45 +4,50 @@ const { UniqueConstraintError } = require("sequelize/lib/errors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const validateJWT = require("../middleware/validatejwt");
+//const { DataTypes } = require("sequelize/dist");
 
-router.put("/update", async (request, response) => {
+router.put("/update", validateJWT, async (request, response) => {
 
-    // profileIcon      int     RiotAPI
-    // voiceComm        bool    user
-    // level            int     RiotAPI
-    // discord          str     user
-    // roles            arr     user
-    // summonerName     str     user
-    // timezone         str     user
-    // description      str     user
-    // topChamps        arr     RiotAPI
-    // server           str     user
-    // gameModes        arr     user
-    // rank             str     RiotAPI
-    // active           bool    user
-    // summonerId       str     RiotAPI
+    let {
+        summonerName,
+        server
+    } = request.body.profile;
 
-    // let {
-    //     voiceComm,
-    //     discord,
-    //     roles,
-    //     summonerName,
-    //     timezome,
-    //     description,
-    //     server,
-    //     gameModes,
-    //     active
-    // } = request.body.profile;
+    summonerName = encodeURI(summonerName)
 
-    // if (summonerName === null)
-    //     return response.status(500).json({ message: 'Summoner Name is Required' })
+    const newData = {
+        summonerId: null,
+        level: null,
+        summonerIcon: null,
+        discord: null,
+        roles: [],
+        active: null,
+        gameModes: [],
+        voiceComm: null,
+        description: null,
+        active: true,
+        rank: null
+    }
 
-    // if (server === null)
-    //     return response.status(500).json({ message: 'Server is Required' })
+    if (summonerName === null)
+        return response.status(500).json({ message: 'Summoner Name is Required' })
 
-    let server = 'na1';
+    if (server === null)
+        return response.status(500).json({ message: 'Server is Required' })
 
-    fetch(`https://${server}.api.riotgames.com/lol/summoner/v4/summoners/by-name/Scuttle`, {
+    const accountId = request.accountId;
+
+    // ? fetch: summonerId (id), profileIcon (profileIconId), level (summonerLevel)
+    // {
+    //     "id": "ClazlW-TfDBWcACca48cQKRyy8og7StMNrdmgxr9MgQckUk",
+    //     "accountId": "je7dcfTne4K-M-JIDEKGIjXGgDyQYh4-VhOJOekpYP_ae-Q",
+    //     "puuid": "Tu13h0NFEJKnFy8_ekMW0mAl0XHL8dLP43r3FZo6lBnFQX93l3LecrstfLuXKkwfBvZTM2hBrcsD1w",
+    //     "name": "Scuttle",
+    //     "profileIconId": 4413,
+    //     "revisionDate": 1642785399716,
+    //     "summonerLevel": 213
+    // }
+    await fetch(`https://${server}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}`, {
         method: 'GET',
         mode: 'cors',
         headers: {
@@ -50,33 +55,49 @@ router.put("/update", async (request, response) => {
         }
     })
         .then(result => result.json())
-        .then(result => console.log(result))
+        .then(result => {
+            if (result.status_code === 404) {
+                return response.status(500).json({
+                    message: "Summoner not found",
+                })
+            }
+            newData.summonerId = result.id;
+            newData.summonerIcon = result.profileIconId;
+            newData.level = result.summonerLevel
+        })
+        .then(async () => {
+            await fetch(`https://${server}.api.riotgames.com/lol/league/v4/entries/by-summoner/${newData.summonerId}`, {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'X-Riot-Token': process.env.RIOT_API_KEY
+                }
+            })
+                .then(result => result.json())
+                .then(result => {
+                    newData.rank = `${result[0].tier} ${result[0].rank}`
+                })
+        })
 
+    const query = {
+        where: {
+            accountId: accountId,
+        }
+    };
 
-    // const newDescription = {
-    //     profileDescription: description,
-    //     profilePicture: imageURL,
-    // };
-
-    // const query = {
-    //     where: {
-    //         user_id: id,
-    //     },
-    // };
-
-    // try {
-    //     await User.update(newDescription, query);
-
-    //     response.status(200).json({
-    //         message: "Updated",
-    //         updatedDesc: description,
-    //         updatedURL: imageURL,
-    //     });
-    // } catch (err) {
-    //     response.status(500).json({
-    //         err: `Error ${err}`,
-    //     });
-    // }
+    try {
+        await Profile.update(
+            newData,
+            { where: { accountId: accountId } }
+        );
+        response.status(200).json({
+            message: "Updated",
+        });
+    } catch (err) {
+        response.status(500).json({
+            err: `Error ${err}`,
+        });
+    }
 });
 
 // router.get("/likes", validateJWT, async (request, response) => {

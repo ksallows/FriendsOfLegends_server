@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User } = require("../models");
+const { Account } = require("../models");
 
 const validateJWT = async (req, res, next) => {
 
@@ -19,12 +19,10 @@ const validateJWT = async (req, res, next) => {
             )
             : undefined;
         if (payload) {
-            let foundUser = await User.findOne({ where: { id: payload.id } });
+            let foundAccount = await Account.findOne({ where: { accountId: payload.id } });
 
-            if (foundUser) {
-                req.username = foundUser.dataValues.alias;
-                req.user_id = foundUser.dataValues.id;
-                req.user = foundUser;
+            if (foundAccount) {
+                req.accountId = foundAccount.dataValues.accountId;
                 next();
             } else {
                 res.status(400).send({ message: "Not Authorized" });
