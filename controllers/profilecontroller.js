@@ -4,6 +4,51 @@ const validateJWT = require('../middleware/validatejwt');
 const util = require('util')
 
 // *
+// *    find profile by id
+// *
+router.get('/:id', validateJWT, async (request, response) => {
+    let { id } = request.params;
+
+    try {
+        let profile = await Profile.findOne({
+            where: { profileId: id },
+            raw: true
+        });
+        response.status(200).json({
+            profile: profile
+        });
+    } catch (error) {
+        response.status(500).json({
+            error: `Error ${error}`,
+        });
+    }
+})
+
+// *
+// *    find profiles by fields
+// *
+router.get('/find:page?', validateJWT, async (request, response) => {
+    let fields = request.body.fields;
+
+    let offset = request.params.page ? request.params.page : 0
+
+    try {
+        let profiles = await Profile.findAll({
+            where: fields,
+            raw: true,
+            offset: offset
+        });
+        response.status(200).json({
+            matches: profiles
+        });
+    } catch (error) {
+        response.status(500).json({
+            error: `Error ${error}`,
+        });
+    }
+})
+
+// *
 // *    update profile info & refresh riot api fields
 // *
 router.put('/update', validateJWT, async (request, response) => {
@@ -40,7 +85,8 @@ router.put('/update', validateJWT, async (request, response) => {
     if (!discord.match(/^.{3,32}#[0-9]{4}$/))
         return response.status(400).json({ message: "Discord tag not valid" });
 
-    summonerName = encodeURI(summonerName)
+    summonerName = encodeURI(summonerName);
+
     const accountId = request.accountId;
 
     await fetch(`https://${server}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}`, {
@@ -105,9 +151,9 @@ router.put('/update', validateJWT, async (request, response) => {
         response.status(200).json({
             message: "Updated",
         });
-    } catch (err) {
+    } catch (error) {
         response.status(500).json({
-            err: `Error ${err}`,
+            error: `Error ${error}`,
         });
     }
 });
@@ -125,9 +171,8 @@ router.put('/refresh', validateJWT, async (request, response) => {
         topChamps: [],
     }
 
-    let summonerId;
-    let summonerName;
-    let server;
+    let summonerName, server;
+
     const accountId = request.accountId;
 
     try {
@@ -141,9 +186,9 @@ router.put('/refresh', validateJWT, async (request, response) => {
         summonerId = profile.summonerId;
         summonerName = profile.summonerName;
         server = profile.server;
-    } catch (err) {
+    } catch (error) {
         response.status(500).json({
-            err: `Error: ${err}`
+            error: `Error: ${error}`
         })
     }
 
@@ -209,9 +254,9 @@ router.put('/refresh', validateJWT, async (request, response) => {
         response.status(200).json({
             message: "Updated",
         });
-    } catch (err) {
+    } catch (error) {
         response.status(500).json({
-            err: `Error ${err}`,
+            error: `Error ${error}`,
         });
     }
 });
@@ -236,9 +281,9 @@ router.get('/verification', validateJWT, async (request, response) => {
         response.status(200).json({
             code: profileId
         });
-    } catch (err) {
+    } catch (error) {
         response.status(500).json({
-            err: `Error: ${err}`
+            error: `Error: ${error}`
         })
     }
 })
@@ -263,9 +308,9 @@ router.post('/verification', validateJWT, async (request, response) => {
         summonerName = profile.summonerName;
         server = profile.server;
         profileId = profile.profileId;
-    } catch (err) {
+    } catch (error) {
         response.status(500).json({
-            err: `Error: ${err}`
+            error: `Error: ${error}`
         })
     }
 
@@ -297,7 +342,7 @@ router.post('/verification', validateJWT, async (request, response) => {
                     });
                 } catch (error) {
                     response.status(500).json({
-                        err: `Error ${error}`,
+                        error: `Error ${error}`,
                     });
                 }
             }
