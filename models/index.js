@@ -1,5 +1,5 @@
 const Account = require('./account');
 const Profile = require('./profile')
-const Message = require('./message');
+const Comment = require('./comment');
 
-module.exports = { Account, Message, Profile };
+module.exports = { Account, Comment, Profile };

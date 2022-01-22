@@ -3,7 +3,6 @@ const { Account, Profile } = require("../models");
 const { UniqueConstraintError } = require("sequelize/lib/errors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const validateJWT = require("../middleware/validatejwt");
 
 router.post("/register", async (request, response) => {
     let { email, alias, password } = request.body.account;
