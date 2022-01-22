@@ -1,17 +1,17 @@
 const { DataTypes } = require('sequelize');
 const db = require('../db');
 
-const Message = db.define('comment', {
+const Comment = db.define('comment', {
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
-    for: {
+    for: {  //profileId
         type: DataTypes.STRING,
         allowNull: false
     },
-    from: {
+    from: { //profileId
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -25,4 +25,4 @@ const Message = db.define('comment', {
     }
 });
 
-module.exports = Message;
+module.exports = Comment;
