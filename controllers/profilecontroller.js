@@ -3,6 +3,9 @@ const { Profile } = require('../models');
 const validateJWT = require('../middleware/validatejwt');
 const util = require('util')
 
+// *
+// *    update profile info & refresh riot api fields
+// *
 router.put('/update', validateJWT, async (request, response) => {
 
     let {
@@ -109,6 +112,9 @@ router.put('/update', validateJWT, async (request, response) => {
     }
 });
 
+// *
+// *    refresh riot api fields
+// *
 router.put('/refresh', validateJWT, async (request, response) => {
 
     const newData = {
@@ -132,11 +138,9 @@ router.put('/refresh', validateJWT, async (request, response) => {
             attributes: ['summonerId', 'summonerName', 'server'],
             raw: true
         })
-        console.log(profile)
         summonerId = profile.summonerId;
         summonerName = profile.summonerName;
         server = profile.server;
-        //console.log(`FIODFJIOFD: ${summonerId} ${summonerName} ${server}`)
     } catch (err) {
         response.status(500).json({
             err: `Error: ${err}`
@@ -211,5 +215,94 @@ router.put('/refresh', validateJWT, async (request, response) => {
         });
     }
 });
+
+// *
+// *    get summoner verification code
+// *
+router.get('/verification', validateJWT, async (request, response) => {
+    const accountId = request.accountId;
+
+    let profileId;
+
+    try {
+        const profile = await Profile.findOne({
+            where: {
+                accountId: accountId
+            },
+            attributes: ['profileId'],
+            raw: true
+        })
+        profileId = profile.profileId;
+        response.status(200).json({
+            code: profileId
+        });
+    } catch (err) {
+        response.status(500).json({
+            err: `Error: ${err}`
+        })
+    }
+})
+
+// *
+// *    verify summoner verification code
+// *
+router.post('/verification', validateJWT, async (request, response) => {
+
+    const accountId = request.accountId;
+    let summonerId, summonerName, server, profileId;
+
+    try {
+        const profile = await Profile.findOne({
+            where: {
+                accountId: accountId
+            },
+            attributes: ['summonerId', 'summonerName', 'server', 'profileId'],
+            raw: true
+        })
+        summonerId = profile.summonerId;
+        summonerName = profile.summonerName;
+        server = profile.server;
+        profileId = profile.profileId;
+    } catch (err) {
+        response.status(500).json({
+            err: `Error: ${err}`
+        })
+    }
+
+    if (!summonerId || !summonerName || !server)
+        return response.status(500).json({ error: 'Must have summoner name and server before verification' })
+
+    await fetch(`https://${server}.api.riotgames.com/lol/platform/v4/third-party-code/by-summoner/${summonerId}`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+            'X-Riot-Token': process.env.RIOT_API_KEY
+        }
+    })
+        .then(result => {
+            if (result.status === 404)
+                return response.status(404).json({ error: 'Code not found on account' })
+            else
+                return result.json()
+        })
+        .then(async (result) => {
+            if (result === profileId) {
+                try {
+                    await Profile.update(
+                        { verified: true },
+                        { where: { accountId: accountId } }
+                    );
+                    response.status(200).json({
+                        message: "Account verified!",
+                    });
+                } catch (error) {
+                    response.status(500).json({
+                        err: `Error ${error}`,
+                    });
+                }
+            }
+            else return response.status(401).json({ error: 'Code doesn\'t match' })
+        })
+})
 
 module.exports = router;
