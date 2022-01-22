@@ -1,17 +1,18 @@
 const router = require('express').Router();
-const { Profile } = require('../models');
+const { Profile, Account } = require('../models');
 const validateJWT = require('../middleware/validatejwt');
-const util = require('util')
+const util = require('util');
+const { request, response } = require('express');
 
 // *
 // *    find profile by id
 // *
-router.get('/:id', validateJWT, async (request, response) => {
-    let { id } = request.params;
+router.get('/:profileId', validateJWT, async (request, response) => {
+    let { profileId } = request.params;
 
     try {
         let profile = await Profile.findOne({
-            where: { profileId: id },
+            where: { profileId: profileId },
             raw: true
         });
         response.status(200).json({
@@ -348,6 +349,44 @@ router.post('/verification', validateJWT, async (request, response) => {
             }
             else return response.status(401).json({ error: 'Code doesn\'t match' })
         })
+})
+
+// *
+// *    profile delete
+// *
+router.delete('/delete/:profileId', validateJWT, async (request, response) => {
+    const accountId = request.accountId;
+
+    const { profileId } = request.params;
+
+    try {
+        const account = await Account.findOne({
+            where: {
+                accountId: accountId
+            },
+            attributes: ['admin'],
+            raw: true
+        })
+        if (!account.admin)
+            return response.status('403').json({ message: 'Unauthorized' })
+    } catch (error) {
+        response.status(500).json({
+            error: `Error: ${error}`
+        })
+    }
+
+    try {
+        await Profile.destroy({
+            where: {
+                profileId: profileId
+            }
+        })
+        return response.status('200').json({ message: 'Profile deleted' })
+    } catch (error) {
+        response.status(500).json({
+            error: `Error: ${error}`
+        })
+    }
 })
 
 module.exports = router;
