@@ -4,14 +4,16 @@ const validateJWT = require("../middleware/validatejwt");
 const sequelize = require("sequelize");
 const { response } = require("express");
 
+// TODO remove all instances of 'alias'
+// TODO require summonername and verified = true for comments
+
 router.post("/new", validateJWT, async (request, response) => {
     const accountId = request.accountId;
 
     const { forProfile, body } = request.body.comment
 
-    let profileId, fromAlias;
-
     try {
+        // find profileId via accountId
         const profile = await Profile.findOne({
             where: {
                 accountId: accountId
@@ -19,27 +21,16 @@ router.post("/new", validateJWT, async (request, response) => {
             attributes: ['profileId'],
             raw: true
         })
-        const account = await Account.findOne({
-            where: {
-                accountId: accountId
-            },
-            attributes: ['alias'],
-            raw: true
-        })
-        profileId = profile.profileId;
-        fromAlias = account.alias;
+        // create comment
         await Comment.create({
-            for: forProfile,
-            from: profileId,
-            fromAlias: fromAlias,
+            forProfileId: forProfile,
+            fromProfileId: profile.profileId,
             body: body
         });
-
         response.status(201).json({
             message: "Comment created",
-            for: forProfile,
-            from: profileId,
-            fromAlias: fromAlias,
+            forProfileId: forProfile,
+            fromProfileId: profile.profileId,
             body: body
         });
     } catch (error) {
@@ -73,6 +64,7 @@ router.put("/edit", validateJWT, async (request, response) => {
     const { body, commentId } = request.body.comment
 
     try {
+        // get profileId of current account
         const profile = await Profile.findOne({
             where: {
                 accountId: accountId
@@ -80,18 +72,19 @@ router.put("/edit", validateJWT, async (request, response) => {
             attributes: ['profileId'],
             raw: true
         })
+        // get fromProfileId from specified comment
         const comment = await Comment.findOne({
             where: {
-                id: commentId
+                commentId: commentId
             },
-            attributes: ['from'],
+            attributes: ['fromProfileId'],
             raw: true
         })
-
-        if (profile.profileId === comment.from) {
+        // if they match, update
+        if (profile.profileId === comment.fromProfileId) {
             await Comment.update(
                 { body: body },
-                { where: { id: commentId } }
+                { where: { commentId: commentId } }
             );
         }
         else return response.status(403).json({ message: 'You can only edit YOUR comments.' })
@@ -123,15 +116,15 @@ router.delete("/delete", validateJWT, async (request, response) => {
         })
         const comment = await Comment.findOne({
             where: {
-                id: commentId
+                commentId: commentId
             },
-            attributes: ['from'],
+            attributes: ['fromProfileId'],
             raw: true
         })
 
-        if (profile.profileId === comment.from) {
+        if (profile.profileId === comment.fromProfileId) {
             await Comment.destroy(
-                { where: { id: commentId } }
+                { where: { commentId: commentId } }
             );
         }
         else return response.status(403).json({ message: 'You can only delete YOUR comments.' })

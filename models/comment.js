@@ -2,20 +2,16 @@ const { DataTypes } = require('sequelize');
 const db = require('../db');
 
 const Comment = db.define('comment', {
-    id: {
+    commentId: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
-    for: {  //profileId
+    forProfileId: {  //profileId
         type: DataTypes.STRING,
         allowNull: false
     },
-    from: { //profileId
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    fromAlias: {
+    fromProfileId: { //profileId
         type: DataTypes.STRING,
         allowNull: false
     },

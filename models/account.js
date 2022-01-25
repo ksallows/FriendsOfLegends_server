@@ -1,4 +1,5 @@
 const { DataTypes } = require('sequelize');
+const { Profile } = require('.');
 const db = require('../db');
 
 const Account = db.define('account', {
@@ -8,11 +9,13 @@ const Account = db.define('account', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
-    profileId: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: 'NOTSET'
-    },
+    // profileId: {
+    //     type: DataTypes.STRING,
+    //     allowNull: false,
+    //     defaultValue: 'NOTSET',
+    //     references: Profile,
+    //     referencesKey: 'profileId'
+    // },
     email: {
         type: DataTypes.STRING,
         allowNull: false,

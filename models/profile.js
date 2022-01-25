@@ -7,10 +7,10 @@ const Profile = db.define('profile', {
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
-    accountId: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
+    // accountId: {
+    //     type: DataTypes.STRING,
+    //     allowNull: false
+    // },
     // * RIOT API GENERATED INFO
     summonerId: {
         type: DataTypes.STRING,

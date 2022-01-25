@@ -8,6 +8,8 @@ const util = require('util')
 router.post("/register", async (request, response) => {
     let { email, password } = request.body.account;
 
+    let accountId;
+
     const emailRegex =
         /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
 
@@ -20,31 +22,31 @@ router.post("/register", async (request, response) => {
         return response.status(400).json({ message: 'Password must be at least 8 characters and include at least 1 letter and 1 number, and 1 symbol (!#$%&?"_)' });
 
     try {
-        const account = await Account.create({
+        await Account.create({
             email,
             passwordhash: bcrypt.hashSync(password, 13)
-        });
-
-        let token = jwt.sign({ id: account.accountId }, process.env.JWT_SECRET, {
-            expiresIn: 60 * 60 * 24,
-        });
-
-        // push {accountId} into profile
-        const profile = await Profile.create({
-            accountId: account.accountId
         })
+            .then(async (account) => {
+                accountId = account.accountId
+                await Profile.create({
+                    accountId: accountId
+                })
+                    .then(async (profile) => {
+                        await Account.update(
+                            { profileId: profile.profileId },
+                            { where: { accountId: accountId } }
+                        )
+                        let token = jwt.sign({ id: accountId }, process.env.JWT_SECRET, {
+                            expiresIn: 60 * 60 * 24,
+                        });
+                        response.status(201).json({
+                            message: "Account successfully created",
+                            email: email,
+                            sessionToken: token
+                        });
+                    })
+            })
 
-        // push {profileId} into account
-        await Account.update(
-            { profileId: profile.profileId },
-            { where: { accountId: account.accountId } }
-        )
-
-        response.status(201).json({
-            message: "Account successfully created",
-            email: email,
-            sessionToken: token
-        });
     } catch (error) {
         if (error.name == "SequelizeUniqueConstraintError") {
             response.status(409).json({
