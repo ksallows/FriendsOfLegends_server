@@ -20,7 +20,7 @@ const Account = db.define('account', {
     },
     alias: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
     },
     passwordhash: {
         type: DataTypes.STRING,
