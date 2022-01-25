@@ -204,7 +204,7 @@ router.put('/refresh', validateJWT, async (request, response) => {
 // *
 // *    get summoner verification code
 // *
-router.get('/verification', validateJWT, async (request, response) => {
+router.get('/verify', validateJWT, async (request, response) => {
     const accountId = request.accountId;
 
     let profileId;
@@ -231,7 +231,7 @@ router.get('/verification', validateJWT, async (request, response) => {
 // *
 // *    verify summoner verification code
 // *
-router.post('/verification', validateJWT, async (request, response) => {
+router.post('/verify', validateJWT, async (request, response) => {
 
     const accountId = request.accountId;
     let summonerId, summonerName, server, profileId;

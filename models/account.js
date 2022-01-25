@@ -18,10 +18,6 @@ const Account = db.define('account', {
         allowNull: false,
         unique: true
     },
-    alias: {
-        type: DataTypes.STRING,
-        allowNull: false,
-    },
     passwordhash: {
         type: DataTypes.STRING,
         allowNull: false
