@@ -69,10 +69,32 @@ const refresh = async (summonerName, server) => {
     return data
 }
 
+router.get('/summonerInfo', validateJWT, async (request, response) => {
+    const accountId = request.accountId;
+
+    console.log(accountId)
+
+    try {
+        let profile = await Profile.findOne({
+            where: { accountId: accountId },
+            raw: true
+        });
+        response.status(200).json({
+            summonerName: profile.summonerName,
+            server: profile.server,
+            verified: profile.verified
+        });
+    } catch (error) {
+        response.status(500).json({
+            error: `Error ${error}`,
+        });
+    }
+})
+
 // *
 // *    find profile by id
 // *
-router.get('/:profileId', validateJWT, async (request, response) => {
+router.get('/p/:profileId', validateJWT, async (request, response) => {
     let { profileId } = request.params;
 
     try {
