@@ -4,7 +4,7 @@ globalThis.fetch = fetch
 const express = require('express');
 const cors = require('cors')
 const app = express();
-app.use(cors())
+app.use(cors({ credentials: true, origin: 'http://localhost:3001' }));
 const dbConnection = require('./db');
 const controllers = require('./controllers');
 app.use(express.json());

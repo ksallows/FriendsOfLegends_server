@@ -1,6 +1,7 @@
 const router = require("express").Router();
 const { Account, Profile } = require("../models");
 const { UniqueConstraintError } = require("sequelize/lib/errors");
+const validateJWT = require('../middleware/validatejwt');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const util = require('util')
@@ -102,5 +103,11 @@ router.post("/login", async (request, response) => {
         });
     }
 });
+
+router.post("/checkToken", validateJWT, async (request, response) => {
+    response.status(200).json({
+        message: `Token valid`
+    });
+})
 
 module.exports = router;
