@@ -72,17 +72,20 @@ const refresh = async (summonerName, server) => {
 router.get('/summonerInfo', validateJWT, async (request, response) => {
     const accountId = request.accountId;
 
-    console.log(accountId)
-
     try {
         let profile = await Profile.findOne({
             where: { accountId: accountId },
             raw: true
         });
+        let account = await Account.findOne({
+            where: { profileId: profile.profileId },
+            raw: true
+        })
         response.status(200).json({
             summonerName: profile.summonerName,
             server: profile.server,
-            verified: profile.verified
+            verified: profile.verified,
+            admin: account.admin
         });
     } catch (error) {
         response.status(500).json({
