@@ -118,16 +118,23 @@ router.get('/p/:profileId', validateJWT, async (request, response) => {
 // *
 // *    find profiles by fields
 // *
-router.get('/find:page?', validateJWT, async (request, response) => {
+router.post('/find:page?', validateJWT, async (request, response) => {
     let fields = request.body.fields;
+
+    let nonNull = {}
+
+    Object.entries(fields).map(([key, value]) => { if (value !== null && value.length > 0) nonNull[key] = value })
+
+    nonNull['active'] = true;
 
     let offset = request.params.page ? request.params.page : 0
 
     try {
         let profiles = await Profile.findAll({
-            where: fields,
+            where: nonNull,
             raw: true,
-            offset: offset
+            offset: offset,
+            attributes: ['profileId', 'summonerIcon', 'level', 'rank', 'topChamps', 'roles', 'voiceComm', 'gameModes', 'summonerName']
         });
         response.status(200).json({
             matches: profiles
