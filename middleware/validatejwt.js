@@ -23,6 +23,7 @@ const validateJWT = async (req, res, next) => {
 
             if (foundAccount) {
                 req.accountId = foundAccount.dataValues.accountId;
+                req.admin = foundAccount.dataValues.admin
                 next();
             } else {
                 res.status(400).send({ message: "Not Authorized" });
