@@ -326,25 +326,12 @@ router.post('/verify', validateJWT, async (request, response) => {
 // *    profile delete
 // *
 router.delete('/delete/:profileId', validateJWT, async (request, response) => {
-    const accountId = request.accountId;
+
+    const admin = request.admin;
+
+    if (!admin) return response.status('403').json({ message: 'Unauthorized' })
 
     const { profileId } = request.params;
-
-    try {
-        const account = await Account.findOne({
-            where: {
-                accountId: accountId
-            },
-            attributes: ['admin'],
-            raw: true
-        })
-        if (!account.admin)
-            return response.status('403').json({ message: 'Unauthorized' })
-    } catch (error) {
-        response.status(500).json({
-            error: `Error: ${error}`
-        })
-    }
 
     try {
         await Profile.destroy({
