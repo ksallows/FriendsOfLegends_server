@@ -347,4 +347,26 @@ router.delete('/delete/:profileId', validateJWT, async (request, response) => {
     }
 })
 
+router.post('/updateSummonerName', validateJWT, async (request, response) => {
+    const accountId = request.accountId;
+
+    const { summonerName, server } = request.body.profile
+
+    try {
+        await Profile.update(
+            {
+                summonerName: summonerName,
+                server: server
+            },
+            { where: { accountId: accountId } }
+        )
+        return response.status('200').json({ message: 'Profile updated' })
+    } catch (error) {
+        response.status(500).json({
+            error: `Error: ${error}`
+        })
+    }
+
+})
+
 module.exports = router;

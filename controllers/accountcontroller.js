@@ -109,5 +109,4 @@ router.post('/checkToken', validateJWT, async (request, response) => {
         message: `Token valid`
     });
 })
-
 module.exports = router;
