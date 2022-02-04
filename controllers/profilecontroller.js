@@ -1,8 +1,8 @@
 const router = require('express').Router();
 const { Profile, Account } = require('../models');
 const validateJWT = require('../middleware/validatejwt');
-const util = require('util');
 const { request, response } = require('express');
+const { Op } = require('sequelize');
 
 const refresh = async (summonerName, server) => {
     let data = {
@@ -119,26 +119,31 @@ router.get('/p/:profileId', validateJWT, async (request, response) => {
 // *    find profiles by fields
 // *
 router.post('/find:page?', validateJWT, async (request, response) => {
-    let fields = request.body.fields;
 
-    let nonNull = {}
+    let fields = request.body.fields
 
-    Object.entries(fields).map(([key, value]) => { if (value !== null && value.length > 0) nonNull[key] = value })
+    let query = {}
 
-    nonNull['active'] = true;
+    query.server = fields.server;
+    if (fields.rank !== null) query.rank = { [Op.startsWith]: fields.rank }
+    if (fields.topChamps !== null) query.topChamps = { [Op.contains]: fields.topChamps }
+    if (fields.roles !== null) query.roles = { [Op.contains]: fields.roles }
+    if (fields.gameModes !== null) query.gameModes = { [Op.contains]: fields.gameModes }
+    if (fields.voiceComm !== null) query.voiceComm = fields.voiceComm
 
     let offset = request.params.page ? request.params.page : 0
 
     try {
         let profiles = await Profile.findAll({
-            where: nonNull,
+            where: query,
             raw: true,
             offset: offset,
+            nest: true,
             attributes: ['profileId', 'summonerIcon', 'level', 'rank', 'topChamps', 'roles', 'voiceComm', 'gameModes', 'summonerName']
         });
-        response.status(200).json({
-            matches: profiles
-        });
+        if (profiles.length > 0) response.status(200).json({ matches: profiles })
+        else response.status(404).json({ message: 'Sorry, we couldn\'t find any players matching that criteria.' })
+
     } catch (error) {
         response.status(500).json({
             error: `Error ${error}`,
