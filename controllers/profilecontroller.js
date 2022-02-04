@@ -85,7 +85,8 @@ router.get('/summonerInfo', validateJWT, async (request, response) => {
             summonerName: profile.summonerName,
             server: profile.server,
             verified: profile.verified,
-            admin: account.admin
+            admin: account.admin,
+            profileId: profile.profileId
         });
     } catch (error) {
         response.status(500).json({
