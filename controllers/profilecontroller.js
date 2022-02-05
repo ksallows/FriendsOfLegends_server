@@ -31,6 +31,7 @@ const refresh = async (summonerName, server) => {
             data.summonerIcon = result.profileIconId;
             data.level = result.summonerLevel
         })
+        .catch(error => console.log(error))
 
     await fetch(`https://${server}.api.riotgames.com/lol/league/v4/entries/by-summoner/${data.summonerId}`, {
         method: 'GET',
@@ -42,7 +43,7 @@ const refresh = async (summonerName, server) => {
         .then(result => result.json())
         .then(result => {
             if (result.length === 0)
-                data.rank = 'Unranked';
+                data.rank = 'UNRANKED';
             else {
                 let a;
                 for (i = 0; i < result.length; i++) {
@@ -56,6 +57,7 @@ const refresh = async (summonerName, server) => {
                     data.rank = result[a].tier
             }
         })
+        .catch(error => console.log(error))
 
     await fetch(`https://${server}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/${data.summonerId}`, {
         method: 'GET',
@@ -66,6 +68,7 @@ const refresh = async (summonerName, server) => {
     })
         .then(result => result.json())
         .then(result => data.topChamps.push(result[0].championId, result[1].championId, result[2].championId))
+        .catch(error => console.log(error))
     return data
 }
 
@@ -200,6 +203,8 @@ router.put('/update', validateJWT, async (request, response) => {
 // *
 router.put('/refresh', validateJWT, async (request, response) => {
 
+    console.log(request.accountId)
+
     let profile;
 
     const accountId = request.accountId;
@@ -218,7 +223,7 @@ router.put('/refresh', validateJWT, async (request, response) => {
         })
     }
 
-    let newData = await refresh(accountId, profile.summonerId, profile.summonerName, profile.server)
+    let newData = await refresh(profile.summonerName, profile.server)
 
     try {
         await Profile.update(
