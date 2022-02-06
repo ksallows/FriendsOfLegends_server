@@ -162,7 +162,9 @@ router.put('/update', validateJWT, async (request, response) => {
 
     let {
         summonerName,
-        server
+        server,
+        discord,
+        description
     } = request.body.profile;
 
     if (!summonerName)
@@ -171,8 +173,11 @@ router.put('/update', validateJWT, async (request, response) => {
     if (!server)
         return response.status(500).json({ message: 'Server is Required' })
 
-    if (!request.body.profile.discord.match(/^.{3,32}#[0-9]{4}$/))
+    if (discord !== null && !discord.match(/^.{3,32}#[0-9]{4}$/))
         return response.status(400).json({ message: "Discord tag not valid" });
+
+    if (description.length > 500)
+        return response.status(500).json({ message: 'Max 500 characters for description' })
 
     summonerName = encodeURI(summonerName);
 
