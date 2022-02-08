@@ -3,6 +3,7 @@ const { Profile, Account } = require('../models');
 const validateJWT = require('../middleware/validatejwt');
 const { request, response } = require('express');
 const { Op } = require('sequelize');
+const util = require('util')
 
 const refresh = async (summonerName, server) => {
     let data = {
@@ -125,14 +126,27 @@ router.get('/p/:profileId', validateJWT, async (request, response) => {
 router.post('/find:page?', validateJWT, async (request, response) => {
 
     let fields = request.body.fields
-
     let query = {}
-
     query.server = fields.server;
-    if (fields.rank !== null) query.rank = { [Op.startsWith]: fields.rank }
-    if (fields.topChamps !== null) query.topChamps = { [Op.contains]: fields.topChamps }
-    if (fields.roles !== null) query.roles = { [Op.contains]: fields.roles }
-    if (fields.gameModes !== null) query.gameModes = { [Op.contains]: fields.gameModes }
+
+    let newRanks = [];
+
+    for (let rank of fields.rank) {
+        newRanks.push({
+            [Op.contains]: rank,
+        });
+    }
+
+    console.log(newRanks)
+
+    //console.log(`NEWRANKS: ${JSON.stringify(newRanks)}`)
+
+    util.inspect(newRanks, { depth: null, colorize: true })
+
+    if (fields.rank.length > 0) query.rank = { [Op.or]: newRanks }
+    if (fields.topChamps.length > 0) query.topChamps = { [Op.contains]: fields.topChamps }
+    if (fields.roles.length > 0) query.roles = { [Op.contains]: fields.roles }
+    if (fields.gameModes.length > 0) query.gameModes = { [Op.contains]: fields.gameModes }
     if (fields.voiceComm !== null) query.voiceComm = fields.voiceComm
 
     let offset = request.params.page ? request.params.page : 0
