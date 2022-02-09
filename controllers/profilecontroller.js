@@ -106,10 +106,13 @@ router.get('/summonerInfo', validateJWT, async (request, response) => {
 router.get('/p/:profileId', validateJWT, async (request, response) => {
     let { profileId } = request.params;
 
+    console.log(profileId)
+
     try {
         let profile = await Profile.findOne({
-            where: { profileId: profileId },
-            raw: true
+            where: { profileId: profileId, active: true, verified: true },
+            raw: true,
+            attributes: ['profileId', 'summonerIcon', 'level', 'rank', 'topChamps', 'roles', 'voiceComm', 'gameModes', 'summonerName', 'discord', 'description', 'server']
         });
         response.status(200).json({
             profile: profile
@@ -161,29 +164,31 @@ router.post('/find:page?', validateJWT, async (request, response) => {
 router.put('/update', validateJWT, async (request, response) => {
 
     let {
-        summonerName,
-        server,
         discord,
         description
     } = request.body.profile;
 
-    if (!summonerName)
-        return response.status(500).json({ message: 'Summoner Name is Required' })
+    // if (!summonerName)
+    //     return response.status(500).json({ message: 'Summoner Name is Required' })
 
-    if (!server)
-        return response.status(500).json({ message: 'Server is Required' })
+    // if (!server)
+    //     return response.status(500).json({ message: 'Server is Required' })
 
-    if (discord !== null && !discord.match(/^.{3,32}#[0-9]{4}$/))
+    if (discord !== null && discord !== undefined && !discord.match(/^.{3,32}#[0-9]{4}$/))
         return response.status(400).json({ message: "Discord tag not valid" });
 
     if (description.length > 500)
         return response.status(500).json({ message: 'Max 500 characters for description' })
 
-    summonerName = encodeURI(summonerName);
+    const accountId = request.accountId
 
-    const accountId = request.accountId;
+    let foundProfile = await Profile.findOne({
+        where: { accountId: accountId },
+        raw: true,
+        attributes: ['summonerName', 'server']
+    })
 
-    let newData = await refresh(summonerName, server)
+    let newData = await refresh(foundProfile.summonerName, foundProfile.server)
 
     newData = Object.assign(newData, request.body.profile)
 
