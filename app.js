@@ -5,7 +5,7 @@ const express = require('express');
 const cors = require('cors')
 const app = express();
 
-let whitelist = ['http://localhost:3001', /^https:\/\/ks-friendsoflegends-client\.herokuapp\.com/, 'https://ks-friendsoflegends-client.herokuapp.com']
+let whitelist = ['http://localhost:3001', 'https://ks-friendsoflegends-client.herokuapp.com', 'http://localhost:3000']
 //app.use(cors({ credentials: true, origin: 'http://localhost:3001' }));
 app.use(
     cors({
@@ -13,7 +13,7 @@ app.use(
         exposedHeaders: ["Authorization"],
         credentials: true,
         origin: function (origin, callback) {
-            if (whitelist.indexOf(origin) !== -1) {
+            if (!origin || whitelist.indexOf(origin) !== -1) {
                 callback(null, true)
             } else {
                 callback(new Error('Not allowed by CORS'))

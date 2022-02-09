@@ -3,7 +3,8 @@ const { Profile, Account } = require('../models');
 const validateJWT = require('../middleware/validatejwt');
 const { request, response } = require('express');
 const { Op } = require('sequelize');
-const util = require('util')
+const util = require('util');
+const { profile } = require('console');
 
 const refresh = async (summonerName, server) => {
     let data = {
@@ -333,6 +334,7 @@ router.post('/verify', validateJWT, async (request, response) => {
                 return result.json()
         })
         .then(async (result) => {
+            console.log(result)
             if (result === profileId) {
                 try {
                     await Profile.update(
@@ -380,13 +382,25 @@ router.delete('/delete/:profileId', validateJWT, async (request, response) => {
 router.post('/updateSummonerName', validateJWT, async (request, response) => {
     const accountId = request.accountId;
 
-    const { summonerName, server } = request.body.profile
+    const { summonerName, server } = request.body.profile;
 
+    let summonerId;
+
+    await fetch(`https://${server}.api.riotgames.com/lol/summoner/v4/summoners/by-name/${summonerName}`, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+            'X-Riot-Token': process.env.RIOT_API_KEY
+        }
+    })
+        .then(result => result.json())
+        .then(result => summonerId = result.id)
     try {
         await Profile.update(
             {
                 summonerName: summonerName,
-                server: server
+                server: server,
+                summonerId: summonerId
             },
             { where: { accountId: accountId } }
         )
@@ -397,6 +411,22 @@ router.post('/updateSummonerName', validateJWT, async (request, response) => {
         })
     }
 
+})
+
+router.delete('/removeSummonerName', validateJWT, async (request, response) => {
+    const accountId = request.accountId;
+
+    try {
+        Profile.update(
+            { summonerName: null, server: null },
+            { where: { accountId: accountId } }
+        )
+        response.status(200).json({ message: 'Summoner name reset' });
+    } catch (error) {
+        response.status(500).json({
+            error: `Error ${error}`,
+        });
+    }
 })
 
 module.exports = router;
