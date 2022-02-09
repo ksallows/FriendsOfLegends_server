@@ -129,29 +129,14 @@ router.post('/find:page?', validateJWT, async (request, response) => {
     let fields = request.body.fields
     let query = {}
     query.server = fields.server;
-
-    let newRanks = [];
-
-    for (let rank of fields.rank) {
-        newRanks.push({
-            [Op.contains]: rank,
-        });
-    }
-
-    console.log(newRanks)
-
-    //console.log(`NEWRANKS: ${JSON.stringify(newRanks)}`)
-
-    util.inspect(newRanks, { depth: null, colorize: true })
-
-    if (fields.rank.length > 0) query.rank = { [Op.or]: newRanks }
+    query.verified = true;
+    if (fields.rank.length > 0) query.rank = { [Op.any]: fields.rank }
     if (fields.topChamps.length > 0) query.topChamps = { [Op.contains]: fields.topChamps }
     if (fields.roles.length > 0) query.roles = { [Op.contains]: fields.roles }
     if (fields.gameModes.length > 0) query.gameModes = { [Op.contains]: fields.gameModes }
     if (fields.voiceComm !== null) query.voiceComm = fields.voiceComm
 
     let offset = request.params.page ? request.params.page : 0
-
     try {
         let profiles = await Profile.findAll({
             where: query,
