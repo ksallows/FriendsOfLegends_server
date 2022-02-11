@@ -15,6 +15,10 @@ const Comment = db.define('comment', {
         type: DataTypes.STRING,
         allowNull: false
     },
+    fromSummonerName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     body: {
         type: DataTypes.STRING,
         allowNull: false

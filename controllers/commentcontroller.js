@@ -12,19 +12,24 @@ router.post("/new", validateJWT, async (request, response) => {
 
     const { forProfile, body } = request.body.comment
 
+    if (body.length < 10) return response.status(500).json({ message: 'Comment must be at least 10 characters long' });
+    if (body.length > 499) return response.status(500).json({ message: 'Max comment length is 500 characters' });
+
     try {
         // find profileId via accountId
         const profile = await Profile.findOne({
             where: {
                 accountId: accountId
             },
-            attributes: ['profileId'],
+            attributes: ['profileId', 'summonerName'],
             raw: true
         })
         // create comment
         await Comment.create({
             forProfileId: forProfile,
+            profileId: forProfile,
             fromProfileId: profile.profileId,
+            fromSummonerName: profile.summonerName,
             body: body
         });
         response.status(201).json({
@@ -40,15 +45,20 @@ router.post("/new", validateJWT, async (request, response) => {
     }
 });
 
-router.get("/:profileId", validateJWT, async (request, response) => {
+router.get("/comments/:profileId", validateJWT, async (request, response) => {
     const { profileId } = request.params
 
     try {
         const profile = await Comment.findAll({
             where: {
-                for: profileId
+                forProfileId: profileId
             },
-            raw: true
+            raw: true,
+            attributes: ['fromSummonerName', 'fromProfileId', 'body', 'commentId'],
+            order: [
+                ['createdAt', 'DESC']
+            ]
+
         })
         response.status(201).json(profile);
     } catch (error) {
