@@ -69,7 +69,7 @@ router.get("/comments/:profileId", validateJWT, async (request, response) => {
 });
 
 router.put("/edit", validateJWT, async (request, response) => {
-    const accountId = request.accountId;
+    const { accountId, admin } = request;
 
     const { body, commentId } = request.body.comment
 
@@ -90,8 +90,8 @@ router.put("/edit", validateJWT, async (request, response) => {
             attributes: ['fromProfileId'],
             raw: true
         })
-        // if they match, update
-        if (profile.profileId === comment.fromProfileId) {
+        // if they match (or admin user), update
+        if (profile.profileId === comment.fromProfileId || admin) {
             await Comment.update(
                 { body: body },
                 { where: { commentId: commentId } }
@@ -112,7 +112,7 @@ router.put("/edit", validateJWT, async (request, response) => {
 });
 
 router.delete("/delete", validateJWT, async (request, response) => {
-    const accountId = request.accountId;
+    const { accountId, admin } = request;
 
     const { commentId } = request.body.comment
 
@@ -132,7 +132,7 @@ router.delete("/delete", validateJWT, async (request, response) => {
             raw: true
         })
 
-        if (profile.profileId === comment.fromProfileId) {
+        if (profile.profileId === comment.fromProfileId || admin) {
             await Comment.destroy(
                 { where: { commentId: commentId } }
             );
