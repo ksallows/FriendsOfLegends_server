@@ -43,7 +43,8 @@ router.post('/register', async (request, response) => {
                         response.status(201).json({
                             message: 'Account successfully created',
                             email: email,
-                            sessionToken: token
+                            sessionToken: token,
+                            profileId: profile.profileId
                         });
                     })
             })
