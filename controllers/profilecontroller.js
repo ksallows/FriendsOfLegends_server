@@ -3,8 +3,6 @@ const { Profile, Account } = require('../models');
 const validateJWT = require('../middleware/validatejwt');
 const { request, response } = require('express');
 const { Op } = require('sequelize');
-const util = require('util');
-const { profile } = require('console');
 
 const refresh = async (summonerName, server) => {
     let data = {
@@ -44,17 +42,23 @@ const refresh = async (summonerName, server) => {
     })
         .then(result => result.json())
         .then(result => {
-            if (result.length === 0)
+            let b = false; //does player have ranked solo entry?
+            for (i = 0; i < result.length; i++) {
+                if (result[i].queueType === 'RANKED_SOLO_5x5') {
+                    b = true;
+                }
+            }
+            if (result.length === 0 || !b)
                 data.rank = 'UNRANKED';
             else {
-                let a;
+                let a; //find index of ranked solo entry (vs flex or tft)
                 for (i = 0; i < result.length; i++) {
                     if (result[i].queueType === 'RANKED_SOLO_5x5') {
                         a = i;
                     }
                 }
                 if (result[a].tier !== 'CHALLENGER' && result[a].tier !== 'MASTER' && result[a].tier !== 'GRANDMASTER')
-                    data.rank = `${result[a].tier === ''} ${result[a].rank}`
+                    data.rank = `${result[a].tier} ${result[a].rank}`
                 else
                     data.rank = result[a].tier
             }
