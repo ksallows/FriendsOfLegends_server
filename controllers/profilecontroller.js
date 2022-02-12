@@ -174,7 +174,7 @@ router.put('/update', validateJWT, async (request, response) => {
     // if (!server)
     //     return response.status(500).json({ message: 'Server is Required' })
 
-    if (discord !== null && discord !== undefined && !discord.match(/^.{3,32}#[0-9]{4}$/))
+    if (discord !== '' && discord !== null && discord !== undefined && !discord.match(/^.{3,32}#[0-9]{4}$/))
         return response.status(400).json({ message: "Discord tag not valid" });
 
     if (description.length > 500)
