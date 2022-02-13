@@ -110,4 +110,43 @@ router.post('/checkToken', validateJWT, async (request, response) => {
         message: `Token valid`
     });
 })
+
+// ** ADMIN **
+
+router.put('/admin/resetPassword/byAccount', validateJWT, async (request, response) => {
+    if (!request.admin) return response.status(403).json({ message: 'Admin only - unauthorized' })
+    let { accountIdToReset, newPassword } = request.body;
+    try {
+        await Account.update(
+            { passwordhash: bcrypt.hashSync(newPassword, 13) },
+            { where: { accountId: accountIdToReset } }
+        )
+        return response.status(200).json({ message: `Password for account id ${accountIdToReset} reset` })
+    }
+    catch (error) {
+        return response.status(500).json({ message: error })
+    }
+})
+
+router.put('/admin/resetPassword/byProfile', validateJWT, async (request, response) => {
+    if (!request.admin) return response.status(403).json({ message: 'Admin only - unauthorized' })
+    let { profileIdToReset, newPassword } = request.body;
+    try {
+        let profile = await Account.findOne({
+            where: { profileId: profileIdToReset },
+            raw: true,
+            attributes: ['accountId']
+        })
+        let accountIdToReset = profile.accountId;
+        await Account.update(
+            { passwordhash: bcrypt.hashSync(newPassword, 13) },
+            { where: { accountId: accountIdToReset } }
+        )
+        return response.status(200).json({ message: `Password for profile id ${profileIdToReset} reset` })
+    }
+    catch (error) {
+        return response.status(500).json({ message: error })
+    }
+})
+
 module.exports = router;

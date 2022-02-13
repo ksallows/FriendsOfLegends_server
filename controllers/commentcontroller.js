@@ -150,4 +150,20 @@ router.delete("/delete", validateJWT, async (request, response) => {
     }
 });
 
+// ** ADMIN
+
+router.delete('/admin/deleteUserComments', validateJWT, async (request, response) => {
+    if (!request.admin) return response.status(403).json({ message: 'Admin only - unauthorized' })
+    let { profileId } = request.body;
+    try {
+        await Comment.destroy({
+            where: { fromProfileId: profileId }
+        })
+        return response.status(200).json({ message: `All comments by profile id ${profileId} deleted` })
+    }
+    catch (error) {
+        return response.status(500).json({ message: error })
+    }
+})
+
 module.exports = router;
