@@ -4,23 +4,39 @@ const validateJWT = require("../middleware/validatejwt");
 const sequelize = require("sequelize");
 const { response } = require("express");
 
-// router.get("/likes", validateJWT, async (request, response) => {
-//     const id = request.user_id;
+// for a given profile, get the rating and check if current user has upvoted or downvoted it
+router.get("/ratings", validateJWT, async (request, response) => {
+    const accountId = request.accountId;
+    const { targetProfile } = request.body
 
-//     try {
-//         const userLikes = await User.findAll({
-//             where: {
-//                 user_id: id,
-//             },
-//             attributes: ["likedPosts"],
-//         });
-//         response.status(200).json(userLikes);
-//     } catch (error) {
-//         response.status(500).json({
-//             error: `Error ${error}`,
-//         });
-//     }
-// });
+    try {
+        let responseObject = {
+            upvote: false,
+            downvote: false,
+            rating: 0
+        }
+        const profile = await Profile.findOne({
+            where: {
+                accountId: accountId
+            },
+            attributes: ['profileId'],
+            raw: true
+        })
+        const profileId = profile.profileId;
+        const profileRating = await Rating.findOne({
+            where: {
+                profileId: profileId
+            },
+            raw: true,
+            attributes: ['upvotes', 'downvotes', 'rating']
+        })
+        if (profileRating.upvotes.includes(profileId)) responseObject.upvote = true
+        if (profileRating.downvotes.includes(profileId)) responseObject.downvote = true
+        responseObject.rating = profileRating.rating
+        return response.status(200).json(responseObject)
+    }
+    catch (error) { return response.status(500).json({ messge: error }) }
+});
 
 router.put("/rate", validateJWT, async (request, response) => {
     const accountId = request.accountId;
