@@ -5,9 +5,9 @@ const sequelize = require("sequelize");
 const { response } = require("express");
 
 // for a given profile, get the rating and check if current user has upvoted or downvoted it
-router.get("/ratings", validateJWT, async (request, response) => {
+router.get('/ratings/:targetProfile', validateJWT, async (request, response) => {
     const accountId = request.accountId;
-    const { targetProfile } = request.body
+    const { targetProfile } = request.params
 
     try {
         let responseObject = {
@@ -25,11 +25,12 @@ router.get("/ratings", validateJWT, async (request, response) => {
         const profileId = profile.profileId;
         const profileRating = await Rating.findOne({
             where: {
-                profileId: profileId
+                profileId: targetProfile
             },
             raw: true,
             attributes: ['upvotes', 'downvotes', 'rating']
         })
+        if (profileRating === null) return response.status(200).json({ rating: 0, upvote: false, downvote: false })
         if (profileRating.upvotes.includes(profileId)) responseObject.upvote = true
         if (profileRating.downvotes.includes(profileId)) responseObject.downvote = true
         responseObject.rating = profileRating.rating
@@ -59,7 +60,7 @@ router.put("/rate", validateJWT, async (request, response) => {
 
         const ratingObject = await Rating.findOne({
             where: {
-                profileId: profileId
+                profileId: forProfileId
             },
             raw: true
         })
@@ -68,8 +69,14 @@ router.put("/rate", validateJWT, async (request, response) => {
         if (ratingObject === null) {
             let newRating = {};
 
-            if (rating === 'upvote') newRating.upvotes = [profileId]
-            else newRating.downvotes = [profileId]
+            if (rating === 'upvote') {
+                newRating.upvotes = [profileId]
+                newRating.downvotes = []
+            }
+            else {
+                newRating.downvotes = [profileId]
+                newRating.upvotes = []
+            }
 
             newRating.profileId = forProfileId;
             newRating.rating = rating === 'upvote' ? 1 : -1
