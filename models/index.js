@@ -1,6 +1,7 @@
 const Account = require('./account');
 const Profile = require('./profile')
 const Comment = require('./comment');
+const Rating = require('./rating');
 
 Account.belongsTo(Profile, {
     foreignKey: 'profileId',
@@ -16,4 +17,8 @@ Profile.hasMany(Comment, {
     foreignKey: 'profileId'
 })
 
-module.exports = { Account, Comment, Profile };
+Rating.belongsTo(Profile, {
+    foreignKey: 'profileId'
+})
+
+module.exports = { Account, Comment, Profile, Rating };

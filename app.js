@@ -30,6 +30,7 @@ app.use(express.json());
 app.use('/account', controllers.accountcontroller);
 app.use('/profile', controllers.profilecontroller);
 app.use('/comment', controllers.commentcontroller);
+app.use('/rating', controllers.ratingcontroller);
 
 dbConnection.authenticate()
     .then(() => dbConnection.sync())
