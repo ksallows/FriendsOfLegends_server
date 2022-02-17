@@ -181,8 +181,9 @@ router.put('/update', validateJWT, async (request, response) => {
     if (discord !== '' && discord !== null && discord !== undefined && !discord.match(/^.{3,32}#[0-9]{4}$/))
         return response.status(400).json({ message: "Discord tag not valid" });
 
-    if (description.length > 500)
-        return response.status(500).json({ message: 'Max 500 characters for description' })
+    if (description !== null) {
+        if (description.length > 500) return response.status(500).json({ message: 'Max 500 characters for description' })
+    }
 
     const accountId = request.accountId
 
