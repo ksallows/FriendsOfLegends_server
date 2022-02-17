@@ -6,23 +6,7 @@ const cors = require('cors')
 const app = express();
 
 let whitelist = ['http://localhost:3001', 'https://ks-friendsoflegends-client.herokuapp.com', 'http://localhost:3000']
-//app.use(cors({ credentials: true, origin: 'http://localhost:3001' }));
-app.use(
-    cors({
-        allowedHeaders: ["Authorization", "Content-Type"],
-        exposedHeaders: ["Authorization"],
-        credentials: true,
-        origin: function (origin, callback) {
-            if (!origin || whitelist.indexOf(origin) !== -1) {
-                callback(null, true)
-            } else {
-                callback(new Error('Not allowed by CORS'))
-            }
-        },
-        methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-        preflightContinue: false
-    })
-)
+app.use(cors({ origin: whitelist, credentials: true }));
 const dbConnection = require('./db');
 const controllers = require('./controllers');
 app.use(express.json());
@@ -30,6 +14,7 @@ app.use(express.json());
 app.use('/account', controllers.accountcontroller);
 app.use('/profile', controllers.profilecontroller);
 app.use('/comment', controllers.commentcontroller);
+app.use('/rating', controllers.ratingcontroller);
 
 dbConnection.authenticate()
     .then(() => dbConnection.sync())
