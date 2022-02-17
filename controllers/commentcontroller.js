@@ -4,9 +4,6 @@ const validateJWT = require("../middleware/validatejwt");
 const sequelize = require("sequelize");
 const { response } = require("express");
 
-// TODO remove all instances of 'alias'
-// TODO require summonername and verified = true for comments
-
 router.post("/new", validateJWT, async (request, response) => {
     const accountId = request.accountId;
 
