@@ -1,5 +1,6 @@
 module.exports = {
     accountcontroller: require('./accountcontroller'),
     profilecontroller: require('./profilecontroller'),
-    commentcontroller: require('./commentcontroller')
+    commentcontroller: require('./commentcontroller'),
+    ratingcontroller: require('./ratingcontroller'),
 }
