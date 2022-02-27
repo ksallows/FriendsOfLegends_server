@@ -132,7 +132,6 @@ router.get('/p/:profileId', validateJWT, async (request, response) => {
 // *    find profiles by fields
 // *
 router.post('/find:page?', validateJWT, async (request, response) => {
-
     let fields = request.body.fields
     let query = {}
     query.server = fields.server;

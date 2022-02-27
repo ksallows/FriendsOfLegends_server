@@ -37,7 +37,9 @@ router.post('/register', async (request, response) => {
                             { profileId: profile.profileId },
                             { where: { accountId: accountId } }
                         )
-                        let token = jwt.sign({ id: accountId }, process.env.JWT_SECRET);
+                        let token = jwt.sign({ id: accountId }, process.env.JWT_SECRET, {
+                            expiresIn: 60 * 60 * 24,
+                        });
                         response.status(201).json({
                             message: 'Account successfully created',
                             email: email,
@@ -77,7 +79,8 @@ router.post('/login', async (request, response) => {
             if (passwordComparison) {
                 let token = jwt.sign(
                     { id: loginAccount.accountId },
-                    process.env.JWT_SECRET
+                    process.env.JWT_SECRET,
+                    { expiresIn: 60 * 60 * 24 }
                 );
 
                 response.status(200).json({
